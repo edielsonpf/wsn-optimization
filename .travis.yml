@@ -1,13 +1,15 @@
 language: python
 python:
-  - "2.7"
-  - "3.8"
-  # PyPy versions
-  - "pypy"   # currently Python 2.7.13, PyPy 7.1.1
-  - "pypy3"  # currently Python 3.6.1,  PyPy 7.1.1-beta0
-# command to install dependencies
-#install:
-#  - pip install -r requirements.txt
-#  - pip install .
-# command to run tests
-script: pytest
+  - 2.7
+  - 3.5
+  - 3.6
+before_install:
+  - python --version
+  - pip install -U pip
+  - pip install -U pytest
+  - pip install codecov
+install:
+  - pip install ".[test]" . # install package + test dependencies
+script: pytest # run tests
+after_success:
+  - codecov # submit coverage
