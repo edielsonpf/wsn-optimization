@@ -1,0 +1,9 @@
+*.pyc
+*.so
+*.pyd
+*~
+.vs/
+.vscode
+.coverage
+.pytest_cache/
+TestResults/
