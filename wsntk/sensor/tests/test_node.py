@@ -13,8 +13,17 @@ def test_sensor_node():
     sensor = SensorNode()
     assert sensor.get_txpower() == 5.0
 
+def test_set_position():
+    # Test setting the a new position.
+    
+    sensor = SensorNode()
+    
+    position = (0.5,0.5)
+    sensor.set_position(position)
 
-def test_sensor_node_unkown_radio_raises_value_error():
+    assert sensor.get_position() == position
+
+def test_sensor_node_with_unkown_radio_raises_value_error():
     # Test SensorNode creation with a unknown radio type.
     
     error_msg = ('Radio UNKNOWN is not supported.')
@@ -29,18 +38,6 @@ def test_sensor_node_wrong_tx_power_raises_value_error():
         
     with pytest.raises(ValueError, match=error_msg):
         sensor = SensorNode(tx_power = 10.0, radio = "ESP32-WROOM-32U")
-    
-    
-
-def test_set_position():
-    # Test setting the a new position.
-    
-    sensor = SensorNode()
-    
-    position = (0.5,0.5)
-    sensor.set_position(position)
-
-    assert sensor.get_position() == position
     
 def test_set_tx_power_within_range():
     # Test setting the tx_power within expected range.
@@ -71,4 +68,9 @@ def test_set_tx_power_above_range_raises_value_error():
     with pytest.raises(ValueError, match=error_msg):
         sensor.set_txpower(10.0)
 
+def test_get_rx_sensitivity():
+    # Test getting the rx sensitivity.
+    
+    sensor = SensorNode(radio = "ESP32-WROOM-32U")
+    assert sensor.get_rxsensitivity() == -97.00
     
