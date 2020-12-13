@@ -6,7 +6,8 @@
 
 from abc import ABCMeta, abstractmethod
 
-#SENSOR_NODE_TYPES = {"ESP32-WROOM-32U": {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0}}
+RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -10.0, "max_tx_power": 10.0, "rx_sensitivity": -100.0},
+                "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0}}
 
 class BaseNode(metaclass=ABCMeta):
     """Base class for sensor nodes."""
@@ -23,12 +24,13 @@ class BaseNode(metaclass=ABCMeta):
 class SensorNode(BaseNode):
 
     """Base class for sensor nodes."""
-    def __init__(self, position = (0.0, 0.0), tx_power = 5.0, min_tx_power = -12.0, max_tx_power = 9.0, rx_sensitivity = -97.0):
-         super().__init__(position)
-         self.tx_power = tx_power
-         self.min_tx_power = min_tx_power
-         self.max_tx_power = max_tx_power
-         self.rx_sensitivity = rx_sensitivity 
+    def __init__(self, position = (0.0, 0.0), tx_power = 5.0, radio = "DEFAULT"):
+    
+        self._set_radio_config(radio)
+        
+        self.set_txpower(tx_power)
+        
+        super().__init__(position = position)
          
     def set_txpower(self, tx_power):
         """Set radio transmission power
@@ -60,4 +62,26 @@ class SensorNode(BaseNode):
             The current configured transmission power
         """
         return self.tx_power
+
+    
+    def _set_radio_config(self, radio_type):
+        radio_params = self._get_radio_params(radio_type)
+        for param in radio_params: 
+            if param == "max_tx_power":
+               self.max_tx_power = radio_params[param]
+            elif param == "min_tx_power":
+               self.min_tx_power = radio_params[param]
+            elif param == "rx_sensitivity":
+               self.rx_sensitivity = radio_params[param]
+            else:
+                raise ValueError("Radio parameter not expected: %s." %(param))
+    
+    def _get_radio_params(self, radio_type):
+        radio_type = str(radio_type).upper()
+        try:
+            return RADIO_CONFIG[radio_type]
+        except KeyError as e:
+            raise ValueError("Radio %s is not supported." % radio_type) from e
+
+
 
