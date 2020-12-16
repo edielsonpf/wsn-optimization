@@ -84,7 +84,7 @@ class SensorNode(BaseRadio):
     """Class for sensor nodes."""
     def __init__(self, position = (0.0, 0.0), tx_power = 5.0, radio = "DEFAULT"):
         self.position = position
-        super().__init__(tx_power, radio)
+        super(SensorNode, self).__init__(tx_power, radio)
         
     def set_position(self, position):
         self.position = position    

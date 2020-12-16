@@ -3,7 +3,13 @@
 *.pyd
 *~
 .vs/
+.eggs/
 .vscode
 .coverage
 .pytest_cache/
 TestResults/
+dist/
+build/
+env_wsntk/
+wsn_toolkit.egg-info
+__pycache__
