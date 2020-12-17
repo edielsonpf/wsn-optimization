@@ -1,6 +1,8 @@
-# Author: Edielson P. Frigieri <edielsonpf@gmail.com>
+# coding: utf-8
 #
-# License: MIT
+# Copyright (C) 2020 wsn-toolkit
+#
+# This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
 import pytest
 
@@ -12,6 +14,7 @@ def test_sensor_node():
     
     sensor = SensorNode()
     assert sensor.get_txpower() == 5.0
+    assert sensor.get_frequency() == 933.0e6
 
 def test_set_position():
     # Test setting the a new position.

@@ -1,23 +1,19 @@
 
 #! /usr/bin/env python
 #
-# Copyright (C) 2020 Edielson P. Frigieri <edielsonpf@gmail.com>
+# Copyright (C) 2020 wsn-toolkit
+#
+# This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 #               
 # License: MIT
 
-# Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-#import pathlib
-
-#here = pathlib.Path(__file__).parent.resolve()
-#long_description = (here / 'README.md').read_text(encoding='utf-8')
-long_description = "wsn-toolkit is a Python module for simulation of Wireless Sensor Networks"
 
 setup(
     name='wsn-toolkit', 
     version='0.0.1',
     description='A toolkit for Wireless Sensor Networks',
-    long_description=long_description,
+    long_description='wsn-toolkit is a Python module for simulation of Wireless Sensor Networks',
     url='https://github.com/edielsonpf/wsn-toolkit', 
     author='Edielson P. Frigieri',  
     author_email='edielsonpf@gmail.com',
@@ -38,7 +34,6 @@ setup(
         'Operating System :: MacOS',
     ],
     install_requires=[
-       "Django >= 1.1.1",
        "pytest",
     ],
     setup_requires=['pytest-runner'],

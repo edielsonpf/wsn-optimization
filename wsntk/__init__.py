@@ -16,4 +16,4 @@
 #
 __version__ = '0.0.1'
 
-__all__ = ['sensor']
+__all__ = ['sensor', 'link', 'network']

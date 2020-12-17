@@ -1,16 +1,18 @@
-# Authors: Edielson P. Frigieri <edielsonpf@gmail.com> (main author)
+# coding: utf-8
 #
-# License: MIT
+# Copyright (C) 2020 wsn-toolkit
+#
+# This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
 """Sensor nodes for wirelesss sensor networks simulation."""
 
 from abc import ABCMeta, abstractmethod
 
-RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -10.0, "max_tx_power": 10.0, "rx_sensitivity": -100.0},
-                "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0}}
+RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -10.0, "max_tx_power": 10.0, "rx_sensitivity": -100.0, "frequency": 933.0e6},
+                "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0, "frequency": 2.4e9}}
 
 class BaseRadio(metaclass=ABCMeta):
-    """Class for sensor nodes."""
+    """Base class for sensr radio."""
     def __init__(self, tx_power = 5.0, radio = "DEFAULT"):
         self._set_radio_config(radio)
         self.set_txpower(tx_power)
@@ -24,6 +26,8 @@ class BaseRadio(metaclass=ABCMeta):
                self.min_tx_power = radio_params[param]
             elif param == "rx_sensitivity":
                self.rx_sensitivity = radio_params[param]
+            elif param == "frequency":
+               self.frequency = radio_params[param]
             else:
                 raise ValueError("Radio parameter not expected: %s." %(param))
     
@@ -36,7 +40,9 @@ class BaseRadio(metaclass=ABCMeta):
 
 
     def set_txpower(self, tx_power):
-        """Set radio transmission power
+        """
+        Set radio transmission power
+        
         Parameters
         ----------
         tx_power : {float}
@@ -54,7 +60,9 @@ class BaseRadio(metaclass=ABCMeta):
                         
 
     def get_txpower(self):
-        """Get radio transmission power
+        """
+        Get radio transmission power
+        
         Parameters
         ----------
         No parameters
@@ -67,7 +75,9 @@ class BaseRadio(metaclass=ABCMeta):
         return self.tx_power
 
     def get_rxsensitivity(self):
-        """Get radio receiver sensitivity
+        """
+        Get radio receiver sensitivity
+        
         Parameters
         ----------
         No parameters
@@ -79,17 +89,70 @@ class BaseRadio(metaclass=ABCMeta):
         """
         return self.rx_sensitivity
 
+    def get_frequency(self):
+        """
+        Get the radio frequency
+        
+        Parameters
+        ----------
+        No parameters
+        
+        Returns
+        -------
+        float number
+            The current configured receiver sensitivity
+        """
+        return self.frequency
+
 
 class SensorNode(BaseRadio):
-    """Class for sensor nodes."""
+    """
+    Sensor node class.
+        
+    Required arguments:
+        
+        *position*:
+        Tuple of Integers, the x and y position of the sensor.
+          
+        *tx_power*:
+        Float, transmission power to be configured in the radio.
+          
+        *radio*:
+        Enumerator <RADIO_CONFIG>, the radio type to be used in the sensor.
+    """
     def __init__(self, position = (0.0, 0.0), tx_power = 5.0, radio = "DEFAULT"):
         self.position = position
         super(SensorNode, self).__init__(tx_power, radio)
         
     def set_position(self, position):
+        """
+        Set node position
+        
+        Parameters
+        ----------
+        position : tuple of Integers
+           The x and y position of the sensor.
+        
+        Returns
+        -------
+        No data returned
+        """
+        
         self.position = position    
         
     def get_position(self):
+        """
+        Get node position
+        
+        Parameters
+        ----------
+        No parameters.
+        
+        Returns
+        -------
+        Tuple of Integers
+           The current x and y position of the sensor
+        """
         return self.position
 
 
