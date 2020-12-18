@@ -5,7 +5,7 @@
 import pytest
 
 from wsntk import network
-from wsntk.network import SimNet
+from wsntk.network import SensorNetwork
 
 def test_network():
     pass

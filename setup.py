@@ -35,6 +35,7 @@ setup(
     ],
     install_requires=[
        "pytest",
+       "numpy",
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],

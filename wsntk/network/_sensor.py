@@ -8,16 +8,66 @@
 
 from abc import ABCMeta, abstractmethod
 
-RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -10.0, "max_tx_power": 10.0, "rx_sensitivity": -100.0, "frequency": 933.0e6},
+RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0, "rx_sensitivity": -80.0, "frequency": 933.0e6},
                 "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0, "frequency": 2.4e9}}
 
-class BaseRadio(metaclass=ABCMeta):
-    """Base class for sensr radio."""
-    def __init__(self, tx_power = 5.0, radio = "DEFAULT"):
+class BaseNode(metaclass=ABCMeta):
+    """Base class for sensor node."""
+    
+    def __init__(self, position = (0.0, 0.0)):
+        
+        self.position = position
+                         
+    def set_position(self, position):
+        """
+        Set node position
+        
+        Parameters
+        ----------
+        position : tuple of Integers
+           The x and y position of the sensor.
+        
+        Returns
+        -------
+        No data returned
+        """
+        
+        self.position = position    
+        
+    def get_position(self):
+        """
+        Get node position
+        
+        Parameters
+        ----------
+        No parameters.
+        
+        Returns
+        -------
+        Tuple of Integers
+           The current x and y position of the sensor
+        """
+        return self.position
+
+class SensorNode(BaseNode):
+    """
+    Sensor node class.
+        
+    Required arguments:
+        
+        *position*:
+        Tuple of Integers, the x and y position of the sensor.
+          
+        *radio*:
+        Enumerator <RADIO_CONFIG>, the radio type to be used in the sensor.
+    """
+    def __init__(self, position = (0.0, 0.0), radio = "DEFAULT"):
+        
         self._set_radio_config(radio)
-        self.set_txpower(tx_power)
-                 
+        super(SensorNode, self).__init__(position)
+    
     def _set_radio_config(self, radio_type):
+        
         radio_params = self._get_radio_params(radio_type)
         for param in radio_params: 
             if param == "max_tx_power":
@@ -30,7 +80,10 @@ class BaseRadio(metaclass=ABCMeta):
                self.frequency = radio_params[param]
             else:
                 raise ValueError("Radio parameter not expected: %s." %(param))
-    
+        
+        #initialize radio with maximun tx_power                    
+        self.tx_power = self.max_tx_power        
+
     def _get_radio_params(self, radio_type):
         radio_type = str(radio_type).upper()
         try:
@@ -104,55 +157,7 @@ class BaseRadio(metaclass=ABCMeta):
         """
         return self.frequency
 
-
-class SensorNode(BaseRadio):
-    """
-    Sensor node class.
         
-    Required arguments:
-        
-        *position*:
-        Tuple of Integers, the x and y position of the sensor.
-          
-        *tx_power*:
-        Float, transmission power to be configured in the radio.
-          
-        *radio*:
-        Enumerator <RADIO_CONFIG>, the radio type to be used in the sensor.
-    """
-    def __init__(self, position = (0.0, 0.0), tx_power = 5.0, radio = "DEFAULT"):
-        self.position = position
-        super(SensorNode, self).__init__(tx_power, radio)
-        
-    def set_position(self, position):
-        """
-        Set node position
-        
-        Parameters
-        ----------
-        position : tuple of Integers
-           The x and y position of the sensor.
-        
-        Returns
-        -------
-        No data returned
-        """
-        
-        self.position = position    
-        
-    def get_position(self):
-        """
-        Get node position
-        
-        Parameters
-        ----------
-        No parameters.
-        
-        Returns
-        -------
-        Tuple of Integers
-           The current x and y position of the sensor
-        """
-        return self.position
+   
 
 

@@ -4,7 +4,7 @@
 #
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
-from wsntk.sensor import SensorNode
+from wsntk.network import SensorNode
 
 #create two sensors with different radio configurations
 Sensor1 = SensorNode() # node with default radio configuration
