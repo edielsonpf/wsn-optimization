@@ -4,7 +4,7 @@
 #
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
-from wsntk.network import RadioLink
+from wsntk.network import FreeSpaceRadioLink
 
 #from pymobility.models.mobility import gauss_markov, reference_point_group, \
 #    tvc, truncated_levy_walk, random_direction, random_waypoint, random_walk
@@ -67,7 +67,7 @@ from wsntk.network import RadioLink
 #        plt.draw()
 
 
-link = RadioLink(src_position = (-10,10), dst_position = (10,-10), threshold = 10)
+link = FreeSpaceRadioLink(src_position = (-10,10), dst_position = (10,-10), threshold = 10)
 print(link.get_link_distance())
 print(link.get_link_status())
 

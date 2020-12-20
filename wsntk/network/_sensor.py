@@ -7,6 +7,7 @@
 """Sensor nodes for wirelesss sensor networks simulation."""
 
 from abc import ABCMeta, abstractmethod
+from numpy.random import rand
 
 RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0, "rx_sensitivity": -80.0, "frequency": 933.0e6},
                 "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0, "frequency": 2.4e9}}
@@ -14,10 +15,10 @@ RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0
 class BaseNode(metaclass=ABCMeta):
     """Base class for sensor node."""
     
-    def __init__(self, position = (0.0, 0.0)):
+    def __init__(self, position):
         
         self.position = position
-                         
+                                 
     def set_position(self, position):
         """
         Set node position
@@ -49,6 +50,21 @@ class BaseNode(metaclass=ABCMeta):
         """
         return self.position
 
+    @abstractmethod
+    def _update_position(self):
+        """Interator"""
+        raise NotImplementedError
+
+    @abstractmethod
+    def __iter__(self):
+        """Used to return an iteractor from a node"""
+        raise NotImplementedError
+    
+    @abstractmethod
+    def __next__(self):
+        """Interator next"""
+        raise NotImplementedError
+
 class SensorNode(BaseNode):
     """
     Sensor node class.
@@ -61,13 +77,15 @@ class SensorNode(BaseNode):
         *radio*:
         Enumerator <RADIO_CONFIG>, the radio type to be used in the sensor.
     """
-    def __init__(self, position = (0.0, 0.0), radio = "DEFAULT"):
+    def __init__(self, position, radio = "DEFAULT"):
         
-        self._set_radio_config(radio)
         super(SensorNode, self).__init__(position)
-    
-    def _set_radio_config(self, radio_type):
+        #initialize radio configuration
+        self._set_radio_config(radio)
         
+    def _set_radio_config(self, radio_type):
+        """ Collect the radio parameters used in the sensor """
+
         radio_params = self._get_radio_params(radio_type)
         for param in radio_params: 
             if param == "max_tx_power":
@@ -85,13 +103,23 @@ class SensorNode(BaseNode):
         self.tx_power = self.max_tx_power        
 
     def _get_radio_params(self, radio_type):
+        """ Retrieve the radio parameters based on specified type """
         radio_type = str(radio_type).upper()
         try:
             return RADIO_CONFIG[radio_type]
         except KeyError as e:
             raise ValueError("Radio %s is not supported." % radio_type) from e
 
-
+    def _update_position(self):
+        """ Update the sensor position based on mobility models """
+        ndim = len(self.position)
+        step = 0.1*rand(ndim)
+        self.position = self.position + step
+        
+    def _update_energy(self):
+        """ Update the sensor energy based on consumption models """
+        pass
+    
     def set_txpower(self, tx_power):
         """
         Set radio transmission power
@@ -157,7 +185,14 @@ class SensorNode(BaseNode):
         """
         return self.frequency
 
-        
-   
+    def __iter__(self):
+        """Interator"""
+        return self
+    
+    def __next__(self):
+        self._update_position()
+        self._update_energy()
+        return self.position
+           
 
 

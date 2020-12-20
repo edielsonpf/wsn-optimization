@@ -19,8 +19,6 @@ class BaseLink(metaclass=ABCMeta):
         self.rx_sensitivity = rx_sensitivity
         self.distance = distance
         
-        self.link_status = self._update_status()
-
     @abstractmethod
     def _calc_loss(self, distance, frequency):
         """calculate the link loss"""
@@ -56,7 +54,7 @@ class BaseLink(metaclass=ABCMeta):
         No return
         """
         self.distance = distance
-        self.link_status = self._update_status()        
+               
 
     def get_txpower(self):
         """Get link diatance
@@ -83,10 +81,10 @@ class BaseLink(metaclass=ABCMeta):
         No return
         """
         self.tx_power = tx_power
-        self.link_status = self._update_status()        
+                
 
     def get_status(self):
-        """Get current link status based on defined threshold
+        """Get current link status based on defined parameters
         Parameters
         ----------
         No parameters
@@ -96,7 +94,8 @@ class BaseLink(metaclass=ABCMeta):
         float number
             The current configured transmission power
         """
-        return self.link_status
+        
+        return self._update_status()
 
 class FreeSpaceRadioLink(BaseLink):
     """Network links between sensor nodes."""
@@ -128,5 +127,4 @@ class FreeSpaceRadioLink(BaseLink):
             return LINK_STATUS_TYPE[link_status]
         except KeyError as e:
             raise ValueError("Status %s is not supported." % link_status) from e
-    
     

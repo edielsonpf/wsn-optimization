@@ -5,7 +5,7 @@
 import pytest
 
 from wsntk import network
-from wsntk.network import RadioLink
+from wsntk.network import FreeSpaceRadioLink
 
 def test_radio_link():
     # Test SensorNode creation with default values.
