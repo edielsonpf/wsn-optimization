@@ -17,7 +17,7 @@ logger = logging.getLogger("network simulation")
 DRAW = True
 
 ## number of nodes
-nr_nodes = 5
+nr_nodes = 10
 
 ## simulation area (km)
 max_x, max_y = 15, 15
@@ -28,10 +28,14 @@ net = NetSim(nr_nodes, dimensions=(max_x, max_y))
 
 if DRAW:
     import matplotlib.pyplot as plt
-    plt.ion()
+    # Create new Figure and an Axes which fills it.
     ax = plt.subplot(111)
-    line, = ax.plot(range(max_x), range(max_x), 'C3', zorder=1, lw=3, linestyle='', marker='o')
-       
+    ax.set_xlim(0, max_x)
+    ax.set_ylim(0, max_y)
+
+    # Construct the scatter which will be update during simulation 
+    scat = ax.scatter([], [], s=60, lw=0.5, zorder=2)
+    lines = [ax.plot([],[], 'C3', zorder=1, lw=0.3)[0] for j in range(nr_nodes*nr_nodes)]
         
 step = 0
 
@@ -44,23 +48,24 @@ for nodes,links in net:
         #print(links)
     
     if DRAW:
-        for l in range(len(nodes)):
-            ax.plot([], [], 'b-')    
-            
-        i = 0
+        #cleanup all lines
+        for line in lines:
+            line.set_data([],[])
+        
+        #update only the lines which represents a valid link
         lnr = 0
-        for node in links:
-            for link in node:
+        i = 0
+        for link_set in links:
+            j = 0
+            for link in link_set:
                 if link == 1:
-                    j = node.index(link)
-                    ax.lines[lnr].set_data([nodes[i,0],nodes[j,0]], [nodes[i,1],nodes[j,1]])
+                    lines[lnr].set_data([nodes[i,0],nodes[j,0]], [nodes[i,1],nodes[j,1]])
                     lnr += 1
+                j = j + 1
             i = i + 1
 
-        for l in range(lnr, len(nodes)):
-            ax.lines[l].set_data([],[])
-        
-        line.set_data(nodes[:,0],nodes[:,1])
+        #update the nodes position
+        scat.set_offsets(nodes)
         
         plt.draw()
         plt.pause(0.5)
