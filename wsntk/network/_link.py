@@ -1,130 +1,89 @@
-# Authors: Edielson P. Frigieri <edielsonpf@gmail.com> (main author)
+# coding: utf-8
 #
-# License: MIT
+# Copyright (C) 2020 wsn-toolkit
+#
+# This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
-"""Sensor networks simulation."""
+"""Path loss models."""
 
 from abc import ABCMeta, abstractmethod
 import math
 
-LINK_STATUS_TYPE = {"down": 0, "up": 1}
-
 class BaseLink(metaclass=ABCMeta):
-    """Base class for network links between nodes."""
+    """Base class for path loss models."""
     
-    def __init__(self, distance, tx_power, rx_sensitivity, frequency):
-        
-        self.frequency = frequency
-        self.tx_power = tx_power
-        self.rx_sensitivity = rx_sensitivity
-        self.distance = distance
-        
+    def __init__(self):
+        pass
+
     @abstractmethod
-    def _calc_loss(self, distance, frequency):
-        """calculate the link loss"""
+    def loss(self, distance, frequency):
+        """
+        evaluate the loss function
+        
+        Parameters
+        ----------
+        distance : double
+           The distance between two nodes.
+        
+        frequency: double
+            The frequency of operation  
+        
+        Returns
+        -------
+        double
+            The loss evaluated for `distance` and `frequency`.
+        """
         raise NotImplementedError
-    
+
     @abstractmethod
-    def _update_status(self):
-        """Upddate the link status"""
+    def distance(self, src_position, dst_position):
+        """
+        calculate the diatance between two coordinates
+        
+        Parameters
+        ----------
+        src_position : tuple of double
+           The position of the source node.
+        
+        dst_position : tuple of double
+           The position of the destination node.
+        
+        Returns
+        -------
+        double
+            The diatance between the two nodes.
+        """
         raise NotImplementedError
 
-    def get_distance(self):
-        """Get link diatance
-        Parameters
-        ----------
-        No parameters
-        
-        Returns
-        -------
-        float number
-            The current distance between src and dst nodes
-        """
-        return self.distance
 
-    def set_distance(self, distance):
-        """Set link distance
-        Parameters
-        ----------
-        float number
-            The new distance 
-        
-        Returns
-        -------
-        No return
-        """
-        self.distance = distance
-               
-
-    def get_txpower(self):
-        """Get link diatance
-        Parameters
-        ----------
-        No parameters
-        
-        Returns
-        -------
-        float number
-            The current transmission power
-        """
-        return self.distance
-
-    def set_txpower(self, tx_power):
-        """Set link distance
-        Parameters
-        ----------
-        float number
-            The transmission power 
-        
-        Returns
-        -------
-        No return
-        """
-        self.tx_power = tx_power
-                
-
-    def get_status(self):
-        """Get current link status based on defined parameters
-        Parameters
-        ----------
-        No parameters
-        
-        Returns
-        -------
-        float number
-            The current configured transmission power
-        """
-        
-        return self._update_status()
-
-class FreeSpaceRadioLink(BaseLink):
-    """Network links between sensor nodes."""
-    def __init__(self, distance, tx_power, rx_sensitivity, frequency):
+class FreeSpaceLink(BaseLink):
+    """Base class for path loss models."""
     
-        super(FreeSpaceRadioLink, self).__init__(distance, tx_power, rx_sensitivity, frequency)
-          
-    def _calc_loss(self, distance, frequency):
-        """calculate the link loss"""
-        """For  distance and freqeuncy in kilometers and megahertz, respectively, the constant becomes 32.44"""
+    def __init__(self):
+        super(FreeSpaceLink, self).__init__()
+        pass
+
+    def loss(self, distance, frequency):
+        """
+        Calculate the link loss.
+        For distance and frequency in kilometers and megahertz, respectively, 
+        the constant becomes 32.44
+        
+        Parameters
+        ----------
+        distance : double
+           The distance between two nodes (Km).
+        
+        frequency: double
+            The frequency of operation (MHz).  
+        
+        Returns
+        -------
+        double
+            The loss evaluated for `distance` and `frequency`.
+        """
         return (32.44 + 20*math.log10(frequency/1e6) + 20*math.log10(distance))
-    
-    def _update_status(self):
-        
-        loss = self._calc_loss(self.distance, self.frequency)
-        print(loss)
-        rx_power = self.tx_power - loss
-        print(rx_power)
-        if(rx_power >= self.rx_sensitivity):
-            link_status = self._get_status_type("up")
-        else:
-            link_status = self._get_status_type("down")
-        
-        return link_status
 
-    def _get_status_type(self, link_status):
-        link_status = str(link_status).lower()
-        try:
-            return LINK_STATUS_TYPE[link_status]
-        except KeyError as e:
-            raise ValueError("Status %s is not supported." % link_status) from e
-    
+    def distance(self, pos_a, pos_b):
+        """Calculate the euclidean distance between two positions"""
+        return (math.sqrt(((pos_a[0]-pos_b[0])**2)+((pos_a[1]-pos_b[1])**2)))

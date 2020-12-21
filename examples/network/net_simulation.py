@@ -30,7 +30,7 @@ if DRAW:
     import matplotlib.pyplot as plt
     plt.ion()
     ax = plt.subplot(111)
-    line, = ax.plot(range(max_x), range(max_x), 'C3', zorder=1, lw=3, linestyle='', marker='.')
+    line, = ax.plot(range(max_x), range(max_x), 'C3', zorder=1, lw=3, linestyle='', marker='o')
        
         
 step = 0
@@ -38,13 +38,13 @@ step = 0
 for nodes,links in net:
     
     step = step+1
-    if step%10==0: 
+    if step%10 == 0: 
         logger.info('Step %s'% step)
         #print(nodes)
         #print(links)
-        
+    
     if DRAW:
-        for l in range(len(links)):
+        for l in range(len(nodes)):
             ax.plot([], [], 'b-')    
             
         i = 0
@@ -57,7 +57,7 @@ for nodes,links in net:
                     lnr += 1
             i = i + 1
 
-        for l in range(lnr, len(links)):
+        for l in range(lnr, len(nodes)):
             ax.lines[l].set_data([],[])
         
         line.set_data(nodes[:,0],nodes[:,1])

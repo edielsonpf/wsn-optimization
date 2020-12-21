@@ -1,4 +1,4 @@
-from wsntk.network import FreeSpaceSensorNetwork
+from wsntk.network import SensorNetwork
 
 def NetSim(*args, **kwargs):
-    return iter(FreeSpaceSensorNetwork(*args, **kwargs))
+    return iter(SensorNetwork(*args, **kwargs))
