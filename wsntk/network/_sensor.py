@@ -126,7 +126,7 @@ class SensorNode(BaseNode):
         
         Parameters
         ----------
-        tx_power : {float}
+        tx_power : {double}
             Transmission power to be configured in the radio
         
         Returns
@@ -150,7 +150,7 @@ class SensorNode(BaseNode):
         
         Returns
         -------
-        float number
+        double number
             The current configured transmission power
         """
         return self.tx_power
@@ -165,7 +165,7 @@ class SensorNode(BaseNode):
         
         Returns
         -------
-        float number
+        double number
             The current configured receiver sensitivity
         """
         return self.rx_sensitivity
@@ -180,7 +180,7 @@ class SensorNode(BaseNode):
         
         Returns
         -------
-        float number
+        double number
             The current configured receiver sensitivity
         """
         return self.frequency

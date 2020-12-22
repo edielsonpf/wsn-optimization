@@ -1,5 +1,5 @@
-from ._link import FreeSpaceLink
+from ._link import FreeSpaceLink, LogNormalLink
 from ._sensor import SensorNode
 from ._network import SensorNetwork
 
-__all__ = ['SensorNode', 'SensorNetwork', 'FreeSpaceLink']
+__all__ = ['SensorNode', 'SensorNetwork', 'FreeSpaceLink', 'LogNormalLink']

@@ -24,7 +24,15 @@ max_x, max_y = 15, 15
 
 np.random.seed(0xffff)
 
-net = NetSim(nr_nodes, dimensions=(max_x, max_y))
+## Free Space path loos-based simulation
+#net = NetSim(nr_nodes, dimensions=(max_x, max_y), loss = "FSPL", sigma = 8.7, radio = "DEFAULT")
+
+## Log-Normal path loos-based simulation
+net = NetSim(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 0.7, radio = "DEFAULT")
+
+## Log-Normal path loos-based simulation with ESP32-WROOM-32U radio sensors
+#net = NetSim(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 8.7, radio = "ESP32-WROOM-32U")
+
 
 if DRAW:
     import matplotlib.pyplot as plt
