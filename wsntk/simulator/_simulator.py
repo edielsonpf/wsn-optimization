@@ -1,4 +1,4 @@
 from wsntk.network import SensorNetwork
 
-def NetSim(*args, **kwargs):
+def SimuNet(*args, **kwargs):
     return iter(SensorNetwork(*args, **kwargs))

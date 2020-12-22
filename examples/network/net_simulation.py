@@ -4,7 +4,7 @@
 #
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
-from wsntk.simulator import NetSim
+from wsntk.simulator import SimuNet
 import numpy as np
 import logging
 
@@ -25,13 +25,13 @@ max_x, max_y = 15, 15
 np.random.seed(0xffff)
 
 ## Free Space path loos-based simulation
-#net = NetSim(nr_nodes, dimensions=(max_x, max_y), loss = "FSPL", sigma = 8.7, radio = "DEFAULT")
+#net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "FSPL", sigma = 8.7, radio = "DEFAULT")
 
 ## Log-Normal path loos-based simulation
-net = NetSim(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 0.7, radio = "DEFAULT")
+net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 0.7, radio = "DEFAULT")
 
 ## Log-Normal path loos-based simulation with ESP32-WROOM-32U radio sensors
-#net = NetSim(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 8.7, radio = "ESP32-WROOM-32U")
+#net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 0.7, radio = "ESP32-WROOM-32U")
 
 
 if DRAW:
@@ -46,7 +46,6 @@ if DRAW:
     lines = [ax.plot([],[], 'C3', zorder=1, lw=0.3)[0] for j in range(nr_nodes*nr_nodes)]
         
 step = 0
-
 for nodes,links in net:
     
     step = step+1

@@ -1,3 +1,3 @@
-from ._simulator import NetSim
+from ._simulator import SimuNet
 
-__all__ = ['NetSim']
+__all__ = ['SimuNet']
