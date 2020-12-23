@@ -15,23 +15,36 @@ RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0
 class BaseNode(metaclass=ABCMeta):
     """Base class for sensor node."""
     
-    def __init__(self, position):
+    def __init__(self, dimensions):
         
-        self.position = position
-                                 
+        self.dimensions = dimensions
+        self._init_node()
+
+    def _init_node(self):
+        ndim = len(self.dimensions)
+        self.position = rand(ndim) * self.dimensions
+
     def set_position(self, position):
         """
         Set node position
         
         Parameters
         ----------
-        position : tuple of Integers
+        position : tuple of Double
            The x and y position of the sensor.
         
         Returns
         -------
         No data returned
         """
+        ndim = len(self.dimensions)
+
+        if(ndim != len(position)):
+            raise ValueError("Position len different then expected. Expected %s, received %s." %(ndim, len(position)))    
+        
+        for index in range(ndim):
+            if (position[index] > self.dimensions[index]):
+                raise ValueError("Position exceeded dimensions limits.")
         
         self.position = position    
         
@@ -45,7 +58,7 @@ class BaseNode(metaclass=ABCMeta):
         
         Returns
         -------
-        Tuple of Integers
+        Tuple of Double
            The current x and y position of the sensor
         """
         return self.position
@@ -71,15 +84,15 @@ class SensorNode(BaseNode):
         
     Required arguments:
         
-        *position*:
-        Tuple of Integers, the x and y position of the sensor.
+        *dimensions*:
+        Tuple of doubles, the area limits of the sensor.
           
         *radio*:
         Enumerator <RADIO_CONFIG>, the radio type to be used in the sensor.
     """
-    def __init__(self, position, radio = "DEFAULT"):
+    def __init__(self, dimensions, radio = "DEFAULT"):
         
-        super(SensorNode, self).__init__(position)
+        super(SensorNode, self).__init__(dimensions)
         #initialize radio configuration
         self._set_radio_config(radio)
         

@@ -32,6 +32,9 @@ class BaseNetwork(metaclass=ABCMeta):
           *sigma*
             Double, standard deviation applied to specific path loss models
 
+          *gamma*
+            Double, the path loss exponent
+
           *radio*
             String, the radio type usd on all sensors
     """
@@ -41,12 +44,13 @@ class BaseNetwork(metaclass=ABCMeta):
         "LNPL": (LogNormalLink,),
     }
 
-    def __init__(self, nr_nodes, dimensions, loss = "FSPL", sigma = 8.7, radio = "DEFAULT"):
+    def __init__(self, nr_nodes, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2, radio = "DEFAULT"):
         
         self.nr_nodes = nr_nodes
         self.dimensions = dimensions
         self.radio = radio
         self.sigma = sigma
+        self.gamma = gamma
         
         self.link = self._init_link(loss)
         self.nodes = self._init_nodes(nr_nodes, dimensions, radio)
@@ -57,7 +61,7 @@ class BaseNetwork(metaclass=ABCMeta):
             link_ = self.link_models[loss]
             link_class, args = link_[0], link_[1:]
             if loss in ('LNPL'):
-                args = (self.sigma,)
+                args = (self.sigma, self.gamma)
             return link_class(*args)
         except KeyError as e:
             raise ValueError("The link loss %s is not supported. " % loss) from e
@@ -65,15 +69,12 @@ class BaseNetwork(metaclass=ABCMeta):
 
     def _init_nodes(self, nr_nodes, dimensions, radio):
         """Initializes the simulaiton creating all nodes with respective configuration. """                
-        ndim = len(dimensions)
-        nodes = []
         
+        nodes = []
         #instantiate all nodes
         for i in range (nr_nodes):
-            #create initial randon position
-            position = rand(ndim) * dimensions
             #instantiate a node
-            node = SensorNode(position, radio)
+            node = SensorNode(dimensions, radio)
             #Add node to the network
             nodes.append(node)
         
@@ -120,13 +121,15 @@ class SensorNetwork(BaseNetwork):
           *sigma*
             Double, standard deviation applied to specific path loss models
           
+          *gamma*
+            Double, the path loss exponent
+
           *radio*
             String, the radio type usd on all sensors
     """
-    def __init__(self, nr_nodes, dimensions, loss = "FSPL", sigma = 8.7, radio = "DEFAULT"):
+    def __init__(self, nr_nodes, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2,  radio = "DEFAULT"):
         
-        super(SensorNetwork, self).__init__(nr_nodes, dimensions, loss, sigma, radio)
-       
+        super(SensorNetwork, self).__init__(nr_nodes, dimensions, loss, sigma, gamma, radio)
     
     def _update_nodes(self):
         nodes_position = np.empty((0, len(self.dimensions)))
@@ -142,7 +145,7 @@ class SensorNetwork(BaseNetwork):
             distance = self._distance(rx_node.get_position(), tx_node.get_position())
             loss = self.link.loss(distance, rx_node.frequency)
             rx_power = tx_node.tx_power - loss
-        
+            
             if(rx_power >= rx_node.rx_sensitivity):
                 link_status = 1
             else:

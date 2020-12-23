@@ -25,13 +25,13 @@ max_x, max_y = 15, 15
 np.random.seed(0xffff)
 
 ## Free Space path loos-based simulation
-#net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "FSPL", sigma = 8.7, radio = "DEFAULT")
+#net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "FSPL", sigma = 8.7, gamma = 2.2, radio = "DEFAULT")
 
 ## Log-Normal path loos-based simulation
-net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 0.7, radio = "DEFAULT")
+#net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 8.7, gamma = 2.2, radio = "DEFAULT")
 
 ## Log-Normal path loos-based simulation with ESP32-WROOM-32U radio sensors
-#net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 0.7, radio = "ESP32-WROOM-32U")
+net = SimuNet(nr_nodes, dimensions=(max_x, max_y), loss = "LNPL", sigma = 8.7, gamma = 2.2, radio = "ESP32-WROOM-32U")
 
 
 if DRAW:
@@ -52,7 +52,7 @@ for nodes,links in net:
     if step%10 == 0: 
         logger.info('Step %s'% step)
         #print(nodes)
-        #print(links)
+        print(links)
     
     if DRAW:
         #cleanup all lines
