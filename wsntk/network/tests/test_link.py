@@ -21,4 +21,4 @@ def test_log_normal_link():
 
     link = LogNormalLink(sigma = 8.7, gamma = 2.2)
     
-    assert link.loss(distance = 10, frequency = 933e6) ==  84.46425705711364
+    assert link.loss(distance = 10, frequency = 933e6) ==  128.46425705711366

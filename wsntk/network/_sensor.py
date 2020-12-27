@@ -9,7 +9,7 @@
 from abc import ABCMeta, abstractmethod
 from numpy.random import rand
 
-RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0, "rx_sensitivity": -80.0, "frequency": 933.0e6},
+RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0, "rx_sensitivity": -80.0, "frequency": 933e6},
                 "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0, "frequency": 2.4e9}}
 
 class BaseNode(metaclass=ABCMeta):
@@ -40,7 +40,7 @@ class BaseNode(metaclass=ABCMeta):
         ndim = len(self.dimensions)
 
         if(ndim != len(position)):
-            raise ValueError("Position len different then expected. Expected %s, received %s." %(ndim, len(position)))    
+            raise ValueError("Position lenght different then expected. Expected %s, received %s." %(ndim, len(position)))    
         
         for index in range(ndim):
             if (position[index] > self.dimensions[index]):
@@ -63,10 +63,12 @@ class BaseNode(metaclass=ABCMeta):
         """
         return self.position
 
-    @abstractmethod
     def _update_position(self):
-        """Interator"""
-        raise NotImplementedError
+        """ Update the sensor position based on mobility models """
+        #ndim = len(self.position)
+        #step = 0.1*rand(ndim)
+        #self.position = self.position + step
+        pass
 
     @abstractmethod
     def __iter__(self):
@@ -123,12 +125,6 @@ class SensorNode(BaseNode):
         except KeyError as e:
             raise ValueError("Radio %s is not supported." % radio_type) from e
 
-    def _update_position(self):
-        """ Update the sensor position based on mobility models """
-        ndim = len(self.position)
-        step = 0.1*rand(ndim)
-        self.position = self.position + step
-        
     def _update_energy(self):
         """ Update the sensor energy based on consumption models """
         pass

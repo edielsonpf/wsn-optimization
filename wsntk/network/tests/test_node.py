@@ -33,7 +33,7 @@ def test_set_position_wrong_len_raise_value_error():
     
     sensor = SensorNode(dimensions = (10.0, 10.0), radio = "DEFAULT")
     
-    error_msg = ('Position len different then expected. Expected 2, received 3.')
+    error_msg = ('Position lenght different then expected. Expected 2, received 3.')
     
     with pytest.raises(ValueError, match=error_msg):
         sensor.set_position(position = (0.5,0.5,0.5))

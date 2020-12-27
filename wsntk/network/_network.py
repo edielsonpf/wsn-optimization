@@ -20,8 +20,8 @@ class BaseNetwork(metaclass=ABCMeta):
         
         Required arguments:
         
-          *nr_nodes*:
-            Integer, the number of nodes.
+          *nr_sensors*:
+            Integer, the number of sensors.
           
           *dimensions*:
             Tuple of Integers, the x and y dimensions of the simulation area in kilometers.
@@ -44,16 +44,16 @@ class BaseNetwork(metaclass=ABCMeta):
         "LNPL": (LogNormalLink,),
     }
 
-    def __init__(self, nr_nodes, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2, radio = "DEFAULT"):
+    def __init__(self, nr_sensors, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2, radio = "DEFAULT"):
         
-        self.nr_nodes = nr_nodes
+        self.nr_sensors = nr_sensors
         self.dimensions = dimensions
         self.radio = radio
         self.sigma = sigma
         self.gamma = gamma
         
         self.link = self._init_link(loss)
-        self.nodes = self._init_nodes(nr_nodes, dimensions, radio)
+        self.sensors = self._init_sensors(nr_sensors, dimensions, radio)
             
     def _init_link(self, loss):
         """Get ``LinkClass`` object for str ``loss``. """
@@ -67,38 +67,38 @@ class BaseNetwork(metaclass=ABCMeta):
             raise ValueError("The link loss %s is not supported. " % loss) from e
 
 
-    def _init_nodes(self, nr_nodes, dimensions, radio):
-        """Initializes the simulaiton creating all nodes with respective configuration. """                
+    def _init_sensors(self, nr_sensors, dimensions, radio):
+        """Initializes the simulaiton creating all sensors with respective configuration. """                
         
-        nodes = []
-        #instantiate all nodes
-        for i in range (nr_nodes):
-            #instantiate a node
-            node = SensorNode(dimensions, radio)
-            #Add node to the network
-            nodes.append(node)
+        sensors = []
+        #instantiate all sensors
+        for i in range (nr_sensors):
+            #instantiate a sensor
+            sensor = SensorNode(dimensions, radio)
+            #Add sensor to the network
+            sensors.append(sensor)
         
-        return nodes
+        return sensors
 
     def _distance(self, pos_a, pos_b):
         """Calculate the euclidean distance between two positions"""
         return (math.sqrt(((pos_a[0]-pos_b[0])**2)+((pos_a[1]-pos_b[1])**2)))
     
     def __iter__(self):
-        """Generator which returns the current links and nodes after update."""
+        """Generator which returns the current links and sensors after update."""
         while True:
-            nodes = self._update_nodes()
+            sensors = self._update_sensors()
             links = self._update_links()
-            yield nodes, links
+            yield sensors,links
 
     @abstractmethod
-    def _update_nodes(self):
-        """Update the nodes status: position, energy, etc."""
+    def _update_sensors(self):
+        """Update the sensors status: position, energy, etc."""
         raise NotImplementedError
     
     @abstractmethod
     def _update_links(self):
-        """Update the links status based on the new nodes status."""
+        """Update the links status based on the new sensors status."""
         raise NotImplementedError
        
     
@@ -109,8 +109,8 @@ class SensorNetwork(BaseNetwork):
         
         Required arguments:
         
-          *nr_nodes*:
-            Integer, the number of nodes.
+          *nr_sensors*:
+            Integer, the number of sensors.
           
           *dimensions*:
             Tuple of Integers, the x and y dimensions of the simulation area in kilometers.
@@ -127,26 +127,26 @@ class SensorNetwork(BaseNetwork):
           *radio*
             String, the radio type usd on all sensors
     """
-    def __init__(self, nr_nodes, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2,  radio = "DEFAULT"):
+    def __init__(self, nr_sensors, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2,  radio = "DEFAULT"):
         
-        super(SensorNetwork, self).__init__(nr_nodes, dimensions, loss, sigma, gamma, radio)
+        super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, sigma, gamma, radio)
     
-    def _update_nodes(self):
-        nodes_position = np.empty((0, len(self.dimensions)))
-        for node in self.nodes:
-            node_iterator = iter(node)
-            position = next(node_iterator)
-            nodes_position = np.append(nodes_position, position.reshape(1,len(self.dimensions)), axis = 0)
-        return nodes_position
- 
-    def _link_status(self, rx_node, tx_node):
-        
-        if rx_node != tx_node:
-            distance = self._distance(rx_node.get_position(), tx_node.get_position())
-            loss = self.link.loss(distance, rx_node.frequency)
-            rx_power = tx_node.tx_power - loss
+    def _update_sensors(self):
+        positions = np.empty((0, len(self.dimensions)))
+        for sensor in self.sensors:
+            position = next(iter(sensor))
+            positions = np.append(positions, position.reshape(1,len(self.dimensions)), axis = 0)
             
-            if(rx_power >= rx_node.rx_sensitivity):
+        return positions
+ 
+    def _link_status(self, rx_sensor, tx_sensor):
+        
+        if rx_sensor != tx_sensor:
+            distance = self._distance(rx_sensor.get_position(), tx_sensor.get_position())
+            loss = self.link.loss(distance, rx_sensor.frequency)
+            rx_power = tx_sensor.tx_power - loss
+            
+            if(rx_power >= rx_sensor.rx_sensitivity):
                 link_status = 1
             else:
                 link_status = 0
@@ -157,11 +157,11 @@ class SensorNetwork(BaseNetwork):
 
     def _update_links(self):
         links = []
-        for rx_node in self.nodes:
+        for rx_sensor in self.sensors:
             aux_links = []
-            for tx_node in self.nodes:
-                    aux_links.append(self._link_status(rx_node, tx_node))
+            for tx_sensor in self.sensors:
+                    aux_links.append(self._link_status(rx_sensor, tx_sensor))
             links.append(aux_links)    
-
+        
         return links
     

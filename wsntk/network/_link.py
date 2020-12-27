@@ -10,61 +10,33 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import math
 
+DEAFULT_CONSTANT = 32.44 #For distance and frequency in kilometers and megahertz.
 
-class BaseLink(metaclass=ABCMeta):
+class FreeSpaceLink(metaclass=ABCMeta):
     """Base class for path loss models."""
     
     def __init__(self):
         pass
     
-    def _friss(self, distance, frequency):
+    def _friss_loss(self, distance, frequency):
         """
         Calculate the link loss.
-        For distance and frequency in kilometers and megahertz, respectively, 
-        the constant becomes 32.44
-        
+                
         Parameters
         ----------
         distance : double
            The distance between two nodes (Km).
         
         frequency: double
-            The frequency of operation (MHz).  
+            The frequency of operation (Hz).  
         
         Returns
         -------
         double
-            The loss evaluated for `distance` and `frequency`.
+            The Friss loss evaluated for `distance` and `frequency`.
         """
-        return (32.44 + 20*math.log10(frequency/1e6) + 20*math.log10(distance))
+        return (DEAFULT_CONSTANT + 20*math.log10(frequency/1e6) + 20*math.log10(distance))
 
-    @abstractmethod
-    def loss(self, distance, frequency):
-        """
-        evaluate the loss function
-        
-        Parameters
-        ----------
-        distance : double
-           The distance between two nodes.
-        
-        frequency: double
-            The frequency of operation  
-        
-        Returns
-        -------
-        double
-            The loss evaluated for `distance` and `frequency`.
-        """
-        raise NotImplementedError
-
-    
-class FreeSpaceLink(BaseLink):
-    """Base class for path loss models."""
-    
-    def __init__(self):
-        super(FreeSpaceLink, self).__init__()
-    
     def loss(self, distance, frequency):
         """
         Calculate the link loss.
@@ -77,18 +49,17 @@ class FreeSpaceLink(BaseLink):
            The distance between two nodes (Km).
         
         frequency: double
-            The frequency of operation (MHz).  
+            The frequency of operation (Hz).  
         
         Returns
         -------
         double
             The loss evaluated for `distance` and `frequency`.
         """
-        return self._friss(frequency, distance)
+        return self._friss_loss(frequency, distance)
 
 
-
-class LogNormalLink(BaseLink):
+class LogNormalLink(FreeSpaceLink):
     """Base class for path loss models."""
     
     def __init__(self, sigma = 8.7, gamma = 2.2):
@@ -125,13 +96,13 @@ class LogNormalLink(BaseLink):
            The distance between two nodes (Km).
         
         frequency: double
-            The frequency of operation (MHz).  
+            The frequency of operation (Hz).  
         
         Returns
         -------
         double
             The loss evaluated for `distance` and `frequency`.
         """
-        return self._friss(distance, frequency) - 10*self.gamma*math.log10(distance) + np.random.normal(0, self.sigma)
+        return self._friss_loss(distance, frequency) + 10*self.gamma*math.log10(distance) + np.random.normal(0, self.sigma)
 
     
