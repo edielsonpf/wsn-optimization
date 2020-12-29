@@ -6,12 +6,15 @@
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 #               
 # License: MIT
+#version = attr: wsntk.__version__
 
-from setuptools import setup, find_packages
 
-setup(
+import setuptools
 
-    setup_requires=['pytest-runner', 'pbr'],
-    pbr=True,
-    tests_require=['pytest'],
-)
+if __name__ == '__main__':
+    setuptools.setup(
+		setup_requires=['pytest-runner', 'pbr'],
+		pbr=True,
+		tests_require=['pytest'],
+    )
+	

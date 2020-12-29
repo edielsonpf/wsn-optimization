@@ -13,3 +13,5 @@ build/
 env_wsntk/
 wsn_toolkit.egg-info
 __pycache__
+ChangeLog
+AUTHORS
