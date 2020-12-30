@@ -6,19 +6,105 @@ import pytest
 import numpy as np
 
 from wsntk import network
-from wsntk.network import FreeSpaceLink, LogNormalLink
+from wsntk.network import RadioLink
 
-def test_free_space_link():
-    # Test FreeSpace link creation with default values.
-    
-    link = FreeSpaceLink()
-    
-    assert link.loss(distance = 10, frequency = 933e6) == 111.83763287493002
-    
-def test_log_normal_link():
-    # Test FreeSpace link creation with default values.
-    np.random.seed(0xffff)
 
-    link = LogNormalLink(sigma = 8.7, gamma = 2.2)
-    
-    assert link.loss(distance = 10, frequency = 933e6) ==  128.46425705711366
+
+def test_free_space_link_down():
+	# Test FreeSpace link creation with default values.
+
+		
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 10, frequency = 933e6, loss = "FSPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 111.84
+	assert status == 0
+	
+def test_free_space_link_up():
+	# Test FreeSpace link creation with default values.
+
+		
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 4, frequency = 933e6, loss = "FSPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 103.88
+	assert status == 1	
+	
+   
+def test_log_normal_link_down():
+	# Test FreeSpace link creation with default values.
+	np.random.seed(0xffff)
+
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 10, frequency = 933e6, loss = "LNPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 128.46
+	assert status == 0
+
+	
+def test_log_normal_link_up():
+	# Test FreeSpace link creation with default values.
+	np.random.seed(0xffff)
+
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 2, frequency = 933e6, loss = "LNPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 99.11
+	assert status == 1
+	
+	
+def test_radio_link_set_distance():
+	# Test FreeSpace link creation with default values.
+
+		
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 10, frequency = 933e6, loss = "FSPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 111.84
+	assert status == 0
+	
+	link.set_distance(4)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 103.88
+	assert status == 1	
+	
+	
+def test_radio_link_set_txpower():
+	# Test FreeSpace link creation with default values.
+
+		
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 4, frequency = 933e6, loss = "FSPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 103.88
+	assert status == 1	
+	
+	link.set_txpower(12)
+	loss,status = next(link)
+	#the loss is the same but wit less power the link becomes down
+	assert round(loss,2) == 103.88
+	assert status == 0
+
+def test_radio_link_set_frequency():
+	# Test FreeSpace link creation with default values.
+
+		
+	link = RadioLink(tx_power = 27, rx_sensitivity = -80, distance = 4, frequency = 933e6, loss = "FSPL", sigma = 8.7, gamma = 2.2)
+	link = iter(link)
+	loss,status = next(link)
+	
+	assert round(loss,2) == 103.88
+	assert status == 1	
+	
+	link.set_frequency(2.4e9)
+	loss,status = next(link)
+	#the loss is bigger with a diffetent frequency and the link becomes down
+	assert round(loss,2) == 112.09
+	assert status == 0	

@@ -49,7 +49,7 @@ or ``conda``::
 Source code
 ~~~~~~~~~~~
 
-You can check the latest sources with the command:
+You can check the latest sources with the command::
 
     git clone https://github.com/edielsonpf/wsn-toolkit.git
 

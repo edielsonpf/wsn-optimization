@@ -35,46 +35,47 @@ net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LNPL", sigma = 8.7,
 
 
 if DRAW:
-    import matplotlib.pyplot as plt
-    
-    # Create new Figure and an Axes which fills it.
-    ax = plt.subplot(111)
-    ax.set_xlim(0, max_x)
-    ax.set_ylim(0, max_y)
+	import matplotlib.pyplot as plt
 
-    # Construct the scatter which will be update during simulation 
-    scat_sensors = ax.scatter([], [], s=60, lw=0.5, zorder=2)
-    lines = [ax.plot([],[], 'C3', zorder=1, lw=0.3)[0] for j in range(nr_sensors*nr_sensors)]
+	# Create new Figure and an Axes which fills it.
+	ax = plt.subplot(111)
+	ax.set_xlim(0, max_x)
+	ax.set_ylim(0, max_y)
+
+	# Construct the scatter which will be update during simulation 
+	scat_sensors = ax.scatter([], [], s=60, lw=0.5, zorder=2)
+	lines = [ax.plot([],[], 'C3', zorder=1, lw=0.3)[0] for j in range(nr_sensors*nr_sensors)]
     
 step = 0
-for sensors,links in net:
-    
-    step = step+1
-    if step%10 == 0: 
-        logger.info('Step %s'% step)
-        #print(sensors)
-        #print(links)
-        
-    
-    if DRAW:
-        #cleanup all lines
-        for line in lines:
-            line.set_data([],[])
-        
-        #update only the lines which represents a valid link
-        lnr = 0
-        i = 0
-        for link_set in links:
-            j = 0
-            for link in link_set:
-                if link == 1:
-                    lines[lnr].set_data([sensors[i,0],sensors[j,0]], [sensors[i,1],sensors[j,1]])
-                    lnr += 1
-                j = j + 1
-            i = i + 1
+for sensors,links,loss in net:
 
-        #update the sensors position
-        scat_sensors.set_offsets(sensors)
+	step = step+1
+	if step%10 == 0: 
+		logger.info('Step %s'% step)
+		print(sensors)
+		print(links)
+		print(loss)
+		
 
-        plt.draw()
-        plt.pause(0.5)
+	if DRAW:
+		#cleanup all lines
+		for line in lines:
+			line.set_data([],[])
+		
+		#update only the lines which represents a valid link
+		lnr = 0
+		i = 0
+		for link_set in links:
+			j = 0
+			for link in link_set:
+				if link == 1:
+					lines[lnr].set_data([sensors[i,0],sensors[j,0]], [sensors[i,1],sensors[j,1]])
+					lnr += 1
+				j = j + 1
+			i = i + 1
+
+		#update the sensors position
+		scat_sensors.set_offsets(sensors)
+
+		plt.draw()
+		plt.pause(0.5)
