@@ -1,3 +1,3 @@
-from .propagation import FreeSpace, LogNormal
+from .propagation import FreeSpace, LogDistance
 
-__all__ = ['FreeSpace', 'LogNormal']
+__all__ = ['FreeSpace', 'LogDistance']

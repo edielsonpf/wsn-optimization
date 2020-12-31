@@ -1,6 +1,6 @@
 .. -*- mode: rst -*-
 
-|Travis|_ |PyPi|_ |DOI|_
+|Travis|_ |PyPi|_ |DOI|_ |PythonVersion|_
 
 .. |Travis| image:: https://travis-ci.org/edielsonpf/wsn-toolkit.svg?branch=main
 .. _Travis: https://travis-ci.org/edielsonpf/wsn-toolkit
@@ -10,6 +10,10 @@
 
 .. |DOI| image:: https://zenodo.org/badge/319434165.svg
 .. _DOI: https://zenodo.org/badge/latestdoi/319434165
+
+.. |PythonVersion| image:: https://img.shields.io/pypi/pyversions/wsn-toolkit.svg
+.. _PythonVersion: https://pypi.python.org/pypi/wsn-toolkit
+   
 
 .. |PythonMinVersion| replace:: 3.6
 .. |NumPyMinVersion| replace:: 1.13.3
@@ -61,3 +65,4 @@ After installation, the test suite can be exeuted from outside the source
 directory (you will need to have ``pytest`` >= |PyTestMinVersion| installed)::
 
     pytest wsntk
+

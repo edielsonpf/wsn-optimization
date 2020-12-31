@@ -4,7 +4,7 @@
 #
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
-from wsntk.models import FreeSpace, LogNormal
+from wsntk.models import FreeSpace, LogDistance
 
 from abc import ABCMeta, abstractmethod
 import numpy as np
@@ -15,24 +15,24 @@ class BaseLink(metaclass=ABCMeta):
     
 	propagation_models = {
 		"FSPL": (FreeSpace,),
-		"LNPL": (LogNormal,),
+		"LDPL": (LogDistance,),
 	}
 	
-	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "FSPL", sigma = 8.7, gamma = 2.2):
+	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "LDPL", d0 = 1.0, sigma = 0.0, gamma = 2.0):
         
 		self.tx_power = tx_power
 		self.rx_sensitivity = rx_sensitivity
 		self.distance = distance
 		self.frequency = frequency	
-		self.model = self._init_link(loss, sigma, gamma)
+		self.model = self._init_link(loss, d0, sigma, gamma)
 		
-	def _init_link(self, loss, sigma, gamma):
+	def _init_link(self, loss, d0, sigma, gamma):
 		"""Get ``Propagation Class`` object for str ``loss``. """
 		try:
 			model_ = self.propagation_models[loss]
 			model_class, args = model_[0], model_[1:]
-			if loss in ('LNPL'):
-				args = (sigma, gamma)
+			if loss in ('LDPL'):
+				args = (d0, sigma, gamma)
 			return model_class(*args)
 		except KeyError as e:
 
@@ -45,7 +45,7 @@ class BaseLink(metaclass=ABCMeta):
 		Parameters
 		----------
 		tx_power : {double}
-			Transmission power used by link source
+			Transmission power used by link source [dBm]
 		
 		Returns
 		-------
@@ -115,9 +115,9 @@ class BaseLink(metaclass=ABCMeta):
 class RadioLink(BaseLink):
 	"""Class for radio links."""
 
-	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "FSPL", sigma = 8.7, gamma = 2.2):
+	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "LDPL", d0 = 1.0, sigma = 0.0, gamma = 2.0):
 
-		super(RadioLink, self).__init__(tx_power, rx_sensitivity, distance, frequency, loss, sigma, gamma)
+		super(RadioLink, self).__init__(tx_power, rx_sensitivity, distance, frequency, loss, d0, sigma, gamma)
 	
 	def _update_link(self):
 		"""Update the links status based on the currentparameters."""
@@ -126,7 +126,6 @@ class RadioLink(BaseLink):
 		loss = self.model.loss(self.distance, self.frequency)
 		#calculated the received power
 		rx_power = self.tx_power - loss
-
 		#define the currentlink status	
 		if(rx_power >= self.rx_sensitivity):
 			link_status = 1

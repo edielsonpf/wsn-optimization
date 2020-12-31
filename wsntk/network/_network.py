@@ -41,7 +41,7 @@ class BaseNetwork(metaclass=ABCMeta):
 
 
 
-	def __init__(self, nr_sensors, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2, radio = "DEFAULT"):
+	def __init__(self, nr_sensors, dimensions, loss, d0, sigma, gamma, radio):
 		
 		self.nr_sensors = nr_sensors
 		self.dimensions = dimensions
@@ -49,13 +49,13 @@ class BaseNetwork(metaclass=ABCMeta):
 		self.sigma = sigma
 		self.gamma = gamma
 		
-		self.sensors, self.links = self._init_simulation(nr_sensors, dimensions, radio, loss, sigma, gamma)
+		self.sensors, self.links = self._init_simulation(nr_sensors, dimensions, radio, loss, d0, sigma, gamma)
 					
 	
-	def _init_simulation(self, nr_sensors, dimensions, radio, loss, sigma, gamma):
+	def _init_simulation(self, nr_sensors, dimensions, radio, loss, d0, sigma, gamma):
 		
 		sensors = self._init_sensors(nr_sensors, dimensions, radio)
-		links = self._init_links(sensors, loss, sigma, gamma)
+		links = self._init_links(sensors, loss, d0, sigma, gamma)
 					
 		return sensors, links
 
@@ -73,7 +73,7 @@ class BaseNetwork(metaclass=ABCMeta):
 		
 		return sensors
 	
-	def _init_links(self, sensors, loss, sigma, gamma):
+	def _init_links(self, sensors, loss, d0, sigma, gamma):
 		"""Initializes the simulaiton creating all links with respective configuration. """                
 		
 		links = {}
@@ -82,7 +82,7 @@ class BaseNetwork(metaclass=ABCMeta):
 				if rx_sensor != tx_sensor:
 					distance = self._distance(rx_sensor.get_position(), tx_sensor.get_position())
 					#instantiate a sensor
-					link = RadioLink(tx_sensor.tx_power, rx_sensor.rx_sensitivity, distance, tx_sensor.frequency, loss, sigma, gamma)
+					link = RadioLink(tx_sensor.tx_power, rx_sensor.rx_sensitivity, distance, tx_sensor.frequency, loss, d0, sigma, gamma)
 					#Add links to the dictionary
 					links[sensors.index(rx_sensor), sensors.index(tx_sensor)] = link
 		
@@ -139,9 +139,9 @@ class SensorNetwork(BaseNetwork):
 		  *radio*
 			String, the radio type usd on all sensors
 	"""
-	def __init__(self, nr_sensors, dimensions, loss = "FSPL", sigma = 8.7, gamma = 2.2,  radio = "DEFAULT"):
+	def __init__(self, nr_sensors, dimensions, loss = "FSPL", d0 = 1.0, sigma = 0.0, gamma = 2.0,  radio = "DEFAULT"):
 		
-		super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, sigma, gamma, radio)
+		super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, d0, sigma, gamma, radio)
 
 	
 	def _update_sensors(self):
