@@ -76,7 +76,7 @@ class FreeSpace(BasePropagationModel):
 		double
 			The loss evaluated for `distance` and `frequency`.
 		"""
-		if distance > 0.01:
+		if distance > 0.1:
 			L = self._friis_loss(distance, frequency)
 		else:
 			L = MIN_LOSS
@@ -87,10 +87,10 @@ class FreeSpace(BasePropagationModel):
 class LogDistance(BasePropagationModel):
 	"""Class for Log-nomal propagation models."""
 
-	def __init__(self, d0 = 1.0, sigma = 0.0, gamma = 2.0):
+	def __init__(self, d0 = 1.0, sigma = 0.0, n0 = 2.0):
 		self.d0 = d0
 		self.sigma = sigma
-		self.gamma = gamma
+		self.n0 = n0
 		super(LogDistance).__init__()
 		
 	def loss(self, distance, frequency):
@@ -104,7 +104,7 @@ class LogDistance(BasePropagationModel):
 		See:    https://www.sciencedirect.com/topics/computer-science/path-loss-model
 				https://en.wikipedia.org/wiki/Log-distance_path_loss_model
 
-				Building Type	            Frequency of Transmission	gamma 	sigma [dB]
+				Building Type	            Frequency of Transmission	n0 	sigma [dB]
 				Vacuum, infinite space		                            2.0	    0
 				Retail store	            914 MHz	                    2.2	    8.7
 				Grocery store	            914 MHz	                    1.8	    5.2
@@ -117,7 +117,7 @@ class LogDistance(BasePropagationModel):
 				Commercial	                60 GHz	                    1.7	    7.9
 		
 		Formula:
-				PL = PL0 + 10*gamma*log10(d/d0) + X_sigma
+				PL = PL0 + 10*n0*log10(d/d0) + X_sigma
 				
 		Parameters
 		----------
@@ -132,9 +132,64 @@ class LogDistance(BasePropagationModel):
 		double
 			The loss evaluated for `distance` and `frequency`.
 		"""
-		if distance > self.d0:
-			L = self._friis_loss(self.d0, frequency) + self.gamma*10*math.log10(distance/self.d0) + np.random.normal(0, self.sigma)
+		if distance < self.d0:
+			L = self._friis_loss(distance, frequency) + np.random.normal(0, self.sigma)
 		else:
-			L = self._friis_loss(distance, frequency)
+			L = self._friis_loss(self.d0, frequency) + self.n0*10*math.log10(distance/self.d0) + np.random.normal(0, self.sigma)
+		return L
+
+class TwoSlope(BasePropagationModel):
+	"""Class for Log-nomal propagation models."""
+
+	def __init__(self, d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1 = 3.0):
+		self.d0 = d0
+		self.d1 = d1
+		self.sigma = sigma
+		self.n0 = n0
+		self.n1 = n1
+		super(TwoSlope).__init__()
+		
+	def loss(self, distance, frequency):
+		"""
+		Calculate the link loss.
+		For distance and frequency in meters and hertz, respectively. 
+		
+		The two-slope path-loss model implements a log distance path loss propagation model with two distance fields. 
+		This model is the same as the LogDistance model except that it has two distance fields: near, far with different exponents.
+
+		Within each field the reception power is calculated using the log-distance propagation equation:
+		
+			PL = PL0 + 10*n0*log10(d/d0) 
+			
+		where each field begins where the previous ends and all together form a continuous function.
+		
+		A random variable is added in order to account for shadowing (large–scale fading) effects.
+		
+			
+		Formula:
+				
+				PL = PL0  + X_sigma 															, for d < d0
+				PL = PL0 + 10*n0*log10(d/d0) + X_sigma 											, for d0<= d < d1
+				PL = PL0 + 10*n0*log10(d1/d0) + 10*n1*log10(d/d1)  + X_sigma					, for d1 <= d
+				
+		Parameters
+		----------
+		distance : double
+		   The distance between two nodes (m).
+		
+		frequency: double
+			The frequency of operation (Hz).  
+		
+		Returns
+		-------
+		double
+			The loss evaluated for `distance` and `frequency`.
+		"""
+		if distance < self.d0:
+			L = self._friis_loss(distance, frequency) + np.random.normal(0, self.sigma)
+		elif self.d0 <= distance < self.d1:
+			L = self._friis_loss(self.d0, frequency) + self.n0*10*math.log10(distance/self.d0) + np.random.normal(0, self.sigma)
+		else:
+			L = self._friis_loss(self.d0, frequency) + self.n0*10*math.log10(self.d1/self.d0) + self.n1*10*math.log10(distance/self.d1) + np.random.normal(0, self.sigma)
 			
 		return L

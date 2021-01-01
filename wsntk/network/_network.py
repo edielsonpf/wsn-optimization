@@ -32,7 +32,7 @@ class BaseNetwork(metaclass=ABCMeta):
 		*sigma*
 			Double, standard deviation applied to specific path loss models
 
-		*gamma*
+		*n0*
 			Double, the path loss exponent
 
 		*radio*
@@ -41,21 +41,21 @@ class BaseNetwork(metaclass=ABCMeta):
 
 
 
-	def __init__(self, nr_sensors, dimensions, loss, d0, sigma, gamma, radio):
+	def __init__(self, nr_sensors, dimensions, loss, d0, d1, sigma, n0, n1, radio):
 		
 		self.nr_sensors = nr_sensors
 		self.dimensions = dimensions
 		self.radio = radio
 		self.sigma = sigma
-		self.gamma = gamma
+		self.n0 = n0
 		
-		self.sensors, self.links = self._init_simulation(nr_sensors, dimensions, radio, loss, d0, sigma, gamma)
+		self.sensors, self.links = self._init_simulation(nr_sensors, dimensions, radio, loss, d0, d1, sigma, n0, n1)
 					
 	
-	def _init_simulation(self, nr_sensors, dimensions, radio, loss, d0, sigma, gamma):
+	def _init_simulation(self, nr_sensors, dimensions, radio, loss, d0, d1, sigma, n0, n1):
 		
 		sensors = self._init_sensors(nr_sensors, dimensions, radio)
-		links = self._init_links(sensors, loss, d0, sigma, gamma)
+		links = self._init_links(sensors, loss, d0, d1, sigma, n0, n1)
 					
 		return sensors, links
 
@@ -73,7 +73,7 @@ class BaseNetwork(metaclass=ABCMeta):
 		
 		return sensors
 	
-	def _init_links(self, sensors, loss, d0, sigma, gamma):
+	def _init_links(self, sensors, loss, d0, d1, sigma, n0, n1):
 		"""Initializes the simulaiton creating all links with respective configuration. """                
 		
 		links = {}
@@ -82,7 +82,7 @@ class BaseNetwork(metaclass=ABCMeta):
 				if rx_sensor != tx_sensor:
 					distance = self._distance(rx_sensor.get_position(), tx_sensor.get_position())
 					#instantiate a sensor
-					link = RadioLink(tx_sensor.tx_power, rx_sensor.rx_sensitivity, distance, tx_sensor.frequency, loss, d0, sigma, gamma)
+					link = RadioLink(tx_sensor.tx_power, rx_sensor.rx_sensitivity, distance, tx_sensor.frequency, loss, d0, d1, sigma, n0, n1)
 					#Add links to the dictionary
 					links[sensors.index(rx_sensor), sensors.index(tx_sensor)] = link
 		
@@ -133,15 +133,15 @@ class SensorNetwork(BaseNetwork):
 		  *sigma*
 			Double, standard deviation applied to specific path loss models
 		  
-		  *gamma*
+		  *n0*
 			Double, the path loss exponent
 
 		  *radio*
 			String, the radio type usd on all sensors
 	"""
-	def __init__(self, nr_sensors, dimensions, loss = "FSPL", d0 = 1.0, sigma = 0.0, gamma = 2.0,  radio = "DEFAULT"):
+	def __init__(self, nr_sensors, dimensions, loss = "FSPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1 = 3.0,  radio = "DEFAULT"):
 		
-		super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, d0, sigma, gamma, radio)
+		super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, d0, d1, sigma, n0, n1, radio)
 
 	
 	def _update_sensors(self):

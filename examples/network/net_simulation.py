@@ -25,13 +25,13 @@ max_x, max_y = 1000, 1000
 np.random.seed(0xffff)
 
 ## Free Space path loos-based simulation
-#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, sigma = 0.0, gamma = 2.0, radio = "DEFAULT")
+#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1= 3.0, radio = "DEFAULT")
 
-## Log-Normal path loos-based simulation
-#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, sigma = 8.7, gamma = 2.2, radio = "DEFAULT")
+## Log-Distance path loos-based simulation
+#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "DEFAULT")
 
-## Log-Normal path loos-based simulation with ESP32-WROOM-32U radio sensors
-net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, sigma = 8.7, gamma = 2.2, radio = "ESP32-WROOM-32U")
+## Two-Slope path loos-based simulation with ESP32-WROOM-32U radio sensors
+net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U")
 
 
 if DRAW:

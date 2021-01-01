@@ -4,7 +4,7 @@
 #
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
-from wsntk.models import FreeSpace, LogDistance
+from wsntk.models import FreeSpace, LogDistance, TwoSlope
 
 from abc import ABCMeta, abstractmethod
 import numpy as np
@@ -16,23 +16,26 @@ class BaseLink(metaclass=ABCMeta):
 	propagation_models = {
 		"FSPL": (FreeSpace,),
 		"LDPL": (LogDistance,),
+		"TSPL": (TwoSlope,),
 	}
 	
-	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "LDPL", d0 = 1.0, sigma = 0.0, gamma = 2.0):
+	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1 = 3.0):
         
 		self.tx_power = tx_power
 		self.rx_sensitivity = rx_sensitivity
 		self.distance = distance
 		self.frequency = frequency	
-		self.model = self._init_link(loss, d0, sigma, gamma)
+		self.model = self._init_link(loss, d0, d1, sigma, n0, n1)
 		
-	def _init_link(self, loss, d0, sigma, gamma):
+	def _init_link(self, loss, d0, d1, sigma, n0, n1):
 		"""Get ``Propagation Class`` object for str ``loss``. """
 		try:
 			model_ = self.propagation_models[loss]
 			model_class, args = model_[0], model_[1:]
 			if loss in ('LDPL'):
-				args = (d0, sigma, gamma)
+				args = (d0, sigma, n0)
+			if loss in ('TSPL'):
+				args = (d0, d1, sigma, n0, n1)	
 			return model_class(*args)
 		except KeyError as e:
 
@@ -115,9 +118,9 @@ class BaseLink(metaclass=ABCMeta):
 class RadioLink(BaseLink):
 	"""Class for radio links."""
 
-	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "LDPL", d0 = 1.0, sigma = 0.0, gamma = 2.0):
+	def __init__(self, tx_power, rx_sensitivity, distance, frequency, loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1 = 3.0):
 
-		super(RadioLink, self).__init__(tx_power, rx_sensitivity, distance, frequency, loss, d0, sigma, gamma)
+		super(RadioLink, self).__init__(tx_power, rx_sensitivity, distance, frequency, loss, d0, d1, sigma, n0, n1)
 	
 	def _update_link(self):
 		"""Update the links status based on the currentparameters."""
