@@ -41,7 +41,7 @@ class BaseNetwork(metaclass=ABCMeta):
 
 
 
-	def __init__(self, nr_sensors, dimensions, loss, d0, d1, sigma, n0, n1, radio):
+	def __init__(self, nr_sensors, dimensions, loss, d0, d1, sigma, n0, n1, radio, consumption, scaling):
 		
 		self.nr_sensors = nr_sensors
 		self.dimensions = dimensions
@@ -49,25 +49,25 @@ class BaseNetwork(metaclass=ABCMeta):
 		self.sigma = sigma
 		self.n0 = n0
 		
-		self.sensors, self.links = self._init_simulation(nr_sensors, dimensions, radio, loss, d0, d1, sigma, n0, n1)
+		self.sensors, self.links = self._init_simulation(nr_sensors, dimensions, radio, consumption, scaling, loss, d0, d1, sigma, n0, n1)
 					
 	
-	def _init_simulation(self, nr_sensors, dimensions, radio, loss, d0, d1, sigma, n0, n1):
+	def _init_simulation(self, nr_sensors, dimensions, radio, consumption, scaling, loss, d0, d1, sigma, n0, n1):
 		
-		sensors = self._init_sensors(nr_sensors, dimensions, radio)
+		sensors = self._init_sensors(nr_sensors, dimensions, radio, consumption, scaling)
 		links = self._init_links(sensors, loss, d0, d1, sigma, n0, n1)
 					
 		return sensors, links
 
 
-	def _init_sensors(self, nr_sensors, dimensions, radio):
+	def _init_sensors(self, nr_sensors, dimensions, radio, consumption, scaling):
 		"""Initializes the simulaiton creating all sensors with respective configuration. """                
 		
 		sensors = []
 		#instantiate all sensors
 		for i in range (nr_sensors):
 			#instantiate a sensor
-			sensor = SensorNode(dimensions, radio)
+			sensor = SensorNode(dimensions, radio, consumption, scaling)
 			#Add sensor to the network
 			sensors.append(sensor)
 		
@@ -99,9 +99,9 @@ class BaseNetwork(metaclass=ABCMeta):
 	def __iter__(self):
 		"""Generator which returns the current links and sensors after update."""
 		while True:
-			positions = self._update_sensors()
+			positions, residuals, activities = self._update_sensors()
 			status, loss = self._update_links()
-			yield positions,status,loss
+			yield positions,residuals,activities,status,loss
 			
 	@abstractmethod
 	def _update_sensors(self):
@@ -139,19 +139,26 @@ class SensorNetwork(BaseNetwork):
 		  *radio*
 			String, the radio type usd on all sensors
 	"""
-	def __init__(self, nr_sensors, dimensions, loss = "FSPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1 = 3.0,  radio = "DEFAULT"):
+	def __init__(self, nr_sensors, dimensions, loss = "FSPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1 = 3.0,  radio = "DEFAULT", consumption = "None", scaling = 1.0):
 		
-		super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, d0, d1, sigma, n0, n1, radio)
-
+		super(SensorNetwork, self).__init__(nr_sensors, dimensions, loss, d0, d1, sigma, n0, n1, radio, consumption, scaling)
 	
 	def _update_sensors(self):
 		positions = np.empty((0, len(self.dimensions)))
+		energy_residuals = []
+		activities = []
+		
 		for sensor in self.sensors:
-			position = next(iter(sensor))
+			position, energy, activity = next(iter(sensor))
 			positions = np.append(positions, position.reshape(1,len(self.dimensions)), axis = 0)
-		return positions
+			energy_residuals.append(energy)
+			activities.append(activity)
+		return positions, energy_residuals, activities
  
-    
+	def _sensors_alive(self, tx_sensor, rx_sensor):
+		#check if both sensors of a link are alive
+		return (tx_sensor.get_activity() and rx_sensor.get_activity())
+		
 	def _update_links(self):
 		list_status = []
 		list_loss = []
@@ -159,7 +166,7 @@ class SensorNetwork(BaseNetwork):
 			aux_status = []
 			aux_loss = []
 			for tx_sensor in self.sensors:
-				if rx_sensor != tx_sensor:
+				if (rx_sensor != tx_sensor) and self._sensors_alive(tx_sensor, rx_sensor):
 					
 					#calculate the updated distance
 					distance = self._distance(rx_sensor.get_position(), tx_sensor.get_position())
@@ -167,7 +174,7 @@ class SensorNetwork(BaseNetwork):
 					#get link object
 					link = self._get_link(rx_sensor, tx_sensor)
 					
-					#update parameters
+					#update link parameters
 					link.set_distance(distance)
 					link.set_txpower(tx_sensor.tx_power)
 					link.set_rxsensitivity(rx_sensor.rx_sensitivity)	

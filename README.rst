@@ -66,3 +66,16 @@ directory (you will need to have ``pytest`` >= |PyTestMinVersion| installed)::
 
     pytest wsntk
 
+Contributing
+------------
+From a Github account, create a feature branch from main and commit your changes with the respective tests.
+Later, submit a pull request from that feature branch.
+
+References
+----------
+
+[1]	D. A. Guimaraes, E. P. Frigieri, L. J. Sakai. *Influence of Node Mobility, Recharge, and Path Loss on the Optimized Lifetime of Wireless Rechargeable Sensor Networks*. Ad Hoc Networks, 2019.
+	
+[2]	Jonathan de C. Silva, Evandro L. B. Gomes, Edielson P. Frigieri. *Controle da Topologia de Redes de Sensores sem Fio para Economia de Energia Baseado no Algoritmo de Prim*. Revista da Tecnologia da Informação e Comunicação, v. 6, n. 1, pp. 9-14, 2016.	
+
+[3]	J. C. Silva, F. Andery, D. Mazzer, E. P. Frigieri, A. Cerqueira S. Jr., L. D. P. Mendes. *Factorial Design Analysis Applied to the Performance of Transmission Power Optimization Techniques for Wireless Sensor Networks*. 	Annals of XXII Iberchip Workshop (Iberchip), 2016.

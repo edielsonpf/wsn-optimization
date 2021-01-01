@@ -18,6 +18,21 @@ def test_sensor_node():
     assert sensor.get_txpower() == parameter["max_tx_power"]
     assert sensor.get_frequency() == parameter["frequency"]
 
+def test_sensor_node_no_consumption():
+	# Test SensorNode creation with default values.
+
+	sensor = SensorNode(dimensions = (10.0, 10.0), radio = "DEFAULT", consumption = 'None')
+	position, energy, activity = next(iter(sensor))
+	assert energy == 100
+	
+def test_sensor_node_contant_consumption():
+	# Test SensorNode creation with default values.
+
+	sensor = SensorNode(dimensions = (10.0, 10.0), radio = "DEFAULT", consumption = 'Constant', scaling = 1.0)
+	position, energy, activity = next(iter(sensor))
+	assert energy < 100
+	
+    
 def test_set_position():
     # Test setting the a new position.
     

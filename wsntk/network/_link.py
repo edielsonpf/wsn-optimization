@@ -110,10 +110,9 @@ class BaseLink(metaclass=ABCMeta):
 
 	@abstractmethod
 	def _update_link(self):
-		"""Update the links status based on the currentparameters."""
+		"""Update the links status based on the current parameters."""
 		raise NotImplementedError 
 		
-
 
 class RadioLink(BaseLink):
 	"""Class for radio links."""
@@ -123,7 +122,7 @@ class RadioLink(BaseLink):
 		super(RadioLink, self).__init__(tx_power, rx_sensitivity, distance, frequency, loss, d0, d1, sigma, n0, n1)
 	
 	def _update_link(self):
-		"""Update the links status based on the currentparameters."""
+		"""Update the links status based on the current parameters."""
 		 
 		#calculate the path loss
 		loss = self.model.loss(self.distance, self.frequency)

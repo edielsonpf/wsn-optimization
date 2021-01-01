@@ -25,13 +25,16 @@ max_x, max_y = 1000, 1000
 np.random.seed(0xffff)
 
 ## Free Space path loos-based simulation
-#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1= 3.0, radio = "DEFAULT")
+#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 0.0, n0 = 2.0, n1= 3.0, radio = "DEFAULT", consumption = "None", scaling = 1.0)
 
 ## Log-Distance path loos-based simulation
-#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "DEFAULT")
+#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "DEFAULT", consumption = "None", scaling = 1.0)
 
 ## Two-Slope path loos-based simulation with ESP32-WROOM-32U radio sensors
-net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U")
+#net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U", consumption = "None", scaling = 1.0)
+
+## Two-Slope path loos-based simulation with ESP32-WROOM-32U radio sensors and constant battery consumption
+net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U", consumption = "Constant", scaling = 500.0)
 
 
 if DRAW:
@@ -45,14 +48,17 @@ if DRAW:
 	# Construct the scatter which will be update during simulation 
 	scat_sensors = ax.scatter([], [], s=60, lw=0.5, zorder=2)
 	lines = [ax.plot([],[], 'C3', zorder=1, lw=0.3)[0] for j in range(nr_sensors*nr_sensors)]
-    
+
+	
 step = 0
-for sensors,links,loss in net:
+for sensors,residuals,activities,links,loss in net:
 
 	step = step+1
 	if step%10 == 0: 
 		logger.info('Step %s'% step)
 		print(sensors)
+		print(residuals)
+		print(activities)
 		print(links)
 		print(loss)
 		
@@ -76,6 +82,15 @@ for sensors,links,loss in net:
 
 		#update the sensors position
 		scat_sensors.set_offsets(sensors)
-
+		
+		# set the sensor collors according to residual energy
+		facecolors = []
+		for residual in residuals:
+			if(residual > 0):
+				facecolors.append('b')
+			else:
+				facecolors.append('r')
+		scat_sensors.set_facecolors(facecolors)
+		
 		plt.draw()
 		plt.pause(0.5)
