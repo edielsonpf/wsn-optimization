@@ -14,6 +14,7 @@ RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0
                 "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0, "frequency": 2.4e9}}
 
 SENSOR_MAX_ENERGY = 100
+SENSOR_MIN_ENERGY = 0
 
 class BaseNode(metaclass=ABCMeta):
 	"""Base class for sensor node."""
@@ -118,6 +119,8 @@ class SensorNode(BaseNode):
 		self.cons_model = self._set_consumption(consumption, scaling)
 		# set node as active
 		self.activity = 1
+		#set maximm residual energy
+		self.residual = SENSOR_MAX_ENERGY
 		
 	def _set_radio_config(self, radio_type):
 		""" Collect the radio parameters used in the sensor """
@@ -140,8 +143,6 @@ class SensorNode(BaseNode):
 
 	def _set_consumption(self, consumption, scaling):
 		"""Set ``Consumption Class`` object for str ``consumption``. """
-		self.energy = SENSOR_MAX_ENERGY
-		
 		try:
 			model_ = self.consumption_models[consumption]
 			model_class, args = model_[0], model_[1:]
@@ -161,18 +162,19 @@ class SensorNode(BaseNode):
 
 	def _update_energy(self):
 		""" Update the sensor energy based on consumption models """
-		if self.energy > 0:
-			drained = self.cons_model.consumption(self.tx_power)		
-			#check if drained all battery
-			if(drained >= self.energy):
-				self.energy = 0
-			else:
-				self.energy = self.energy - drained
-		return self.energy
+		
+		drained = self.cons_model.consumption(self.tx_power)		
+		self.residual = self.residual - drained
+		
+		#check if drained all battery
+		if(self.residual < SENSOR_MIN_ENERGY):
+			self.residual = SENSOR_MIN_ENERGY
+			
+		return self.residual
 
 	def _update_activity(self):
 		""" Update the sensor life status based on current energy residual"""
-		if self.energy > 0:
+		if self.residual > 0:
 			self.activity = 1		
 		else:
 			self.activity = 0

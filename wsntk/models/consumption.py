@@ -26,7 +26,7 @@ class NoConsumption(BaseConsumptionModel):
 	"""Class for no consumption models."""
 
 	def __init__(self):
-		super(NoConsumption).__init__()
+		super(NoConsumption, self).__init__()
 		
 	def consumption(self, tx_power):
 		"""
@@ -54,7 +54,7 @@ class ConstantConsumption(BaseConsumptionModel):
 	def __init__(self, scaling = 1.0):
 		
 		self.scaling = scaling
-		super(ConstantConsumption).__init__()
+		super(ConstantConsumption, self).__init__()
 		
 	def consumption(self, tx_power):
 		"""
