@@ -33,8 +33,8 @@ np.random.seed(0xffff)
 ## Two-Slope path loos-based simulation with ESP32-WROOM-32U radio sensors
 #net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U", consumption = "None", scaling = 1.0)
 
-## Two-Slope path loos-based simulation with ESP32-WROOM-32U radio sensors and constant battery consumption
-net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U", consumption = "Constant", scaling = 500.0)
+## Two-Slope path loos-based simulation with ESP32-WROOM-32U radio sensors and linear battery consumption
+net = SimuNet(nr_sensors, dimensions=(max_x, max_y), loss = "LDPL", d0 = 1.0, d1 = 10.0, sigma = 8.7, n0 = 2.2, n1 = 3.3, radio = "ESP32-WROOM-32U", consumption = "Exponential", scaling = 20.0)
 
 
 if DRAW:
@@ -85,8 +85,8 @@ for sensors,residuals,activities,links,loss in net:
 		
 		# set the sensor collors according to residual energy
 		facecolors = []
-		for residual in residuals:
-			if(residual > 0):
+		for activity in activities:
+			if(activity == 1):
 				facecolors.append('b')
 			else:
 				facecolors.append('r')

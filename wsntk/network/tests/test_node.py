@@ -28,7 +28,7 @@ def test_sensor_node_no_consumption():
 def test_sensor_node_contant_consumption():
 	# Test SensorNode creation with default values.
 
-	sensor = SensorNode(dimensions = (10.0, 10.0), radio = "DEFAULT", consumption = 'Constant', scaling = 1.0)
+	sensor = SensorNode(dimensions = (10.0, 10.0), radio = "DEFAULT", consumption = 'Exponential', scaling = 1.0)
 	position, energy, activity = next(iter(sensor))
 	assert energy < 100
 	

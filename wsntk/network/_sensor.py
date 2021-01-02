@@ -5,7 +5,7 @@
 # This program was written by Edielson P. Frigieri <edielsonpf@gmail.com>
 
 """Sensor nodes for wirelesss sensor networks simulation."""
-from wsntk.models import NoConsumption, ConstantConsumption
+from wsntk.models import NoConsumption, ExponentialConsumption
 
 from abc import ABCMeta, abstractmethod
 from numpy.random import rand
@@ -14,7 +14,7 @@ RADIO_CONFIG = {"DEFAULT":          {"min_tx_power": -15.0, "max_tx_power": 27.0
                 "ESP32-WROOM-32U":  {"min_tx_power": -12.0, "max_tx_power": 9.0, "rx_sensitivity": -97.0, "frequency": 2.4e9}}
 
 SENSOR_MAX_ENERGY = 100
-SENSOR_MIN_ENERGY = 0
+SENSOR_MIN_ENERGY = 0.1
 
 class BaseNode(metaclass=ABCMeta):
 	"""Base class for sensor node."""
@@ -107,7 +107,7 @@ class SensorNode(BaseNode):
 	
 	consumption_models = {
 		"None": (NoConsumption,),
-		"Constant": (ConstantConsumption,),
+		"Exponential": (ExponentialConsumption,),
 	}
 	
 	def __init__(self, dimensions, radio = "DEFAULT", consumption = "None", scaling = 1.0):
@@ -146,7 +146,7 @@ class SensorNode(BaseNode):
 		try:
 			model_ = self.consumption_models[consumption]
 			model_class, args = model_[0], model_[1:]
-			if consumption in ('Constant'):
+			if consumption in ('Exponential'):
 				args = (scaling,)
 			return model_class(*args)
 		except KeyError as e:
@@ -163,18 +163,13 @@ class SensorNode(BaseNode):
 	def _update_energy(self):
 		""" Update the sensor energy based on consumption models """
 		
-		drained = self.cons_model.consumption(self.tx_power)		
-		self.residual = self.residual - drained
-		
-		#check if drained all battery
-		if(self.residual < SENSOR_MIN_ENERGY):
-			self.residual = SENSOR_MIN_ENERGY
-			
+		self.residual = self.residual*self.cons_model.consumption(self.tx_power)
+					
 		return self.residual
 
 	def _update_activity(self):
 		""" Update the sensor life status based on current energy residual"""
-		if self.residual > 0:
+		if self.residual > SENSOR_MIN_ENERGY:
 			self.activity = 1		
 		else:
 			self.activity = 0
